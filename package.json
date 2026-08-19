@@ -1,0 +1,16 @@
+{
+  "name": "sprout",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Monorepo root for Sprout system",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:cov": "jest --coverage"
+  },
+  "devDependencies": {
+    "jest": "^29.5.0",
+    "ts-jest": "^29.1.0",
+    "typescript": "^5.0.0"
+  }
+}

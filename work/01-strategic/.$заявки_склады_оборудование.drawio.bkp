@@ -1,0 +1,32 @@
+<mxfile host="Electron">
+  <diagram name="Страница-1" id="FQWntf7ELuJKbCoYpYZr">
+    <mxGraphModel dx="1467" dy="914" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="rcQnMErO-VgpfR2gtxcz-1" parent="1" style="ellipse;whiteSpace=wrap;html=1;" value="Заявки" vertex="1">
+          <mxGeometry height="80" width="120" x="690" y="250" as="geometry" />
+        </mxCell>
+        <mxCell id="rcQnMErO-VgpfR2gtxcz-2" edge="1" parent="1" source="rcQnMErO-VgpfR2gtxcz-1" style="edgeStyle=orthogonalEdgeStyle;curved=1;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.083;exitY=0.805;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;endArrow=none;endFill=0;exitPerimeter=0;" target="rcQnMErO-VgpfR2gtxcz-9">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="580" y="410" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rcQnMErO-VgpfR2gtxcz-3" connectable="0" parent="rcQnMErO-VgpfR2gtxcz-2" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="Customer/Supplier" vertex="1">
+          <mxGeometry relative="1" x="0.0905" y="-12" as="geometry">
+            <mxPoint x="12" y="-31" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rcQnMErO-VgpfR2gtxcz-9" parent="1" style="ellipse;whiteSpace=wrap;html=1;" value="Склады и Оборудование" vertex="1">
+          <mxGeometry height="80" width="120" x="390" y="427" as="geometry" />
+        </mxCell>
+        <mxCell id="rcQnMErO-VgpfR2gtxcz-19" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="U" vertex="1">
+          <mxGeometry height="20" width="30" x="510" y="427" as="geometry" />
+        </mxCell>
+        <mxCell id="rcQnMErO-VgpfR2gtxcz-20" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="D" vertex="1">
+          <mxGeometry height="20" width="30" x="660" y="290" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,0 +1,8 @@
+# Project Debug Rules (Non-Obvious Only)
+
+- **Pre-existing dangling reference**: `TicketServiceChangedEvent` is used in `ticket-record.ts` `setService()` (line ~162) but has **no import/definition** in the domain. A TypeScript error here is expected and not caused by your change — resolve the missing event class/import if you touch that method.
+- **NestJS entrypoints are split** (see `Tickets/package.json` scripts): `start:api` and `start:consumer` are separate processes (`entrypoints/api/main` and `entrypoints/consumer/main`). A "service not starting" bug may actually be that you launched the wrong entrypoint.
+- **Async integration via RabbitMQ**: `Tickets` uses `amqp-connection-manager`/`amqplib`. RabbitMQ/PostgreSQL are expected as external deps — errors like ECONNREFUSED on local runs usually mean docker infra isn't up (see `.codeassistantignore`-blocked `docker-compose`).
+- **Runtime needs built output**: scripts like `start:api`/`start:prod` run `node dist/...`; run `yarn build` first or use the `*:dev` variants (`nest start --entryFile ... --watch`).
+- **Test single file**: from `Tickets/`, `yarn test vo/email.spec.ts` (or `npx jest <path>`); `testMatch` restricts to `*.spec.ts`.
+- **snake_case vs camelCase**: DB mapping mismatches (e.g. `createdTime` vs `created_time`) are a common silent-failure source in `fromDb()`/Sequelize models — verify field names when a mapping returns undefined/null.
