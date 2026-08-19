@@ -1,0 +1,65 @@
+﻿# Docker
+.dockerenv
+docker-compose.override.yml
+.dockerignore
+
+# Volumes вЂ” РґР°РЅРЅС‹Рµ РЅРµ РєРѕРјРјРёС‚РёРј
+/db1_data/
+/redis1_data/
+/rabbitmq1_data/
+/data/
+/var/lib/postgresql/data/
+
+# Environment variables
+.env
+.env.local
+.env.development
+.env.production
+*.env.*
+
+# IDE and editors
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+log/
+
+# Runtime & temporary files
+**/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.nyc_output/
+coverage/
+
+# Build artifacts
+/dist
+build/
+out/
+*.tgz
+
+# Editor swap files
+*~
+*.swp
+*.swo
+
+# Local development overrides
+docker-compose.local.yml
+
+# Node.js specific
+.DS_Store
+npm-debug.log
+yarn-error.log
+yarn-debug.log
+.npm
+.yarn-integrity
+.pnpm-debug.log*

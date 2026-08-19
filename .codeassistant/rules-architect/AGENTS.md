@@ -1,0 +1,8 @@
+# Project Architecture Rules (Non-Obvious Only)
+
+- **Strict hexagonal layering per context**: code must live under `<Context>.Application`, `.Domain`, `.Host`, `.Infrastructure`, `.Integration` under each context's `src/`. The `Tickets.Domain` layer is **framework-free** (no NestJS/Sequelize imports); ports live in `.Application`, adapters/persistence in `.Infrastructure`, NestJS wiring in `.Host`, messaging in `.Integration`.
+- **Aggregate boundaries**: `TicketRecord` and `TicketWork` are separate aggregates, each collecting domain events internally (`addDomainEvent`/`getDomainEvents`/`clearDomainEvents`). Cross-aggregate state changes must not mutate the other aggregate directly.
+- **CQRS + events**: `Tickets` uses `@nestjs/cqrs` and `@nestjs/event-emitter`; RabbitMQ (`amqplib`) is the async transport. Domain → integration event translation is expected (see `domain-events/`).
+- **Storage**: Sequelize + PostgreSQL; DB/DTO schema uses `snake_case`. Models/mappers in `.Infrastructure` must map snake_case ↔ domain fields.
+- **Existing constraints**: `ServiceObject` is a separate entity; `TicketRecord` holds a reference via `service_object` data. Changing the aggregate persistence shape must keep `fromDb()` and create-data VOs (`vo/ticket-record-create-data.ts`) in sync.
+- **Dangling reference to resolve**: `TicketServiceChangedEvent` referenced by `TicketRecord.setService()` has no domain definition — a known gap to close when designing event flows around service changes.
