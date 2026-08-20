@@ -2,9 +2,13 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { TicketRecordCreateData } from "../vo/ticket-record-create-data";
 import TicketRecordStatus from "../vo/ticket-record-status";
+import TicketWorkStatus from "../vo/ticket-work-status";
 import { DomainEvent } from "../domain-events/domain-event";
 import { TicketRecordStatusInternallyChangedEvent } from "../domain-events/ticket-record-status-internally-changed-event";
-import { TicketRecordId } from './identifiers';
+import { TicketServiceChangedEvent } from "../domain-events/ticket-service-changed-event";
+import { TicketRecordId, TicketWorkId, ServiceObjectId } from './identifiers';
+import { TicketWork } from './ticket-work';
+
 export class TicketRecord {
     private id!: TicketRecordId;
     private external_id!: string;
@@ -17,6 +21,9 @@ export class TicketRecord {
     private act_type!: string;
     private wiki_link!: string;
     private is_service_change_available!: boolean;
+    private works: TicketWork[] = [];
+    private current_work_id?: TicketWorkId;
+    private service_object_id?: ServiceObjectId;
     private events: DomainEvent[] = [];
 
     constructor(data: TicketRecordCreateData) {
@@ -42,6 +49,9 @@ export class TicketRecord {
         this.act_type = data.act_type;
         this.wiki_link = data.wiki_link;
         this.is_service_change_available = data.is_service_change_available;
+        this.works = [...(data.works ?? [])];
+        this.current_work_id = data.current_work_id ? TicketWorkId.from(data.current_work_id) : undefined;
+        this.service_object_id = data.service_object_id ? ServiceObjectId.from(data.service_object_id) : undefined;
     }
 
     public static fromdata(dto: TicketRecordCreateData): TicketRecord {
@@ -62,6 +72,9 @@ export class TicketRecord {
         act_type: string;
         wiki_link: string;
         is_service_change_available: boolean;
+        service_object_id: string;
+        current_work_id?: string;
+        works?: TicketWork[];
     }): TicketRecord {
         const dto = new TicketRecordCreateData({
             id: data.id,
@@ -77,13 +90,9 @@ export class TicketRecord {
             act_type: data.act_type,
             wiki_link: data.wiki_link,
             is_service_change_available: data.is_service_change_available,
-            service_object: {
-                address: '',
-                name: '',
-                search_code: '',
-                coords: { lat: '', lng: '' },
-                phone_number: '',
-            },
+            service_object_id: data.service_object_id,
+            current_work_id: data.current_work_id,
+            works: data.works,
         });
         return new TicketRecord(dto);
     }
@@ -130,6 +139,35 @@ export class TicketRecord {
 
     isServiceChangeAvailable(): boolean {
         return this.is_service_change_available;
+    }
+
+    getServiceObjectId(): ServiceObjectId | undefined {
+        return this.service_object_id;
+    }
+
+    getCurrentWorkId(): TicketWorkId | undefined {
+        const work = this.currentWork();
+        return work ? work.getId() : undefined;
+    }
+
+    addWork(work: TicketWork): void {
+        if (this.isActiveStatus(work.getStatus())) {
+            if (this.currentWork() !== undefined) {
+                throw new Error('В заявке не может быть более одной активной работы');
+            }
+            this.current_work_id = work.getId();
+        }
+        this.works.push(work);
+    }
+
+    currentWork(): TicketWork | undefined {
+        return this.works.find((work) => this.isActiveStatus(work.getStatus()));
+    }
+
+    private isActiveStatus(status: TicketWorkStatus): boolean {
+        return status !== TicketWorkStatus.Done
+            && status !== TicketWorkStatus.Canceled
+            && status !== TicketWorkStatus.Closed;
     }
 
     statusChangeAllowed(newStatus: TicketRecordStatus): boolean {

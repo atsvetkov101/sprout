@@ -15,14 +15,21 @@ export class ServiceObject {
     private phone_number: PhoneNumber;
     private work_hours?: WorkHours;
 
-    private constructor(data: ServiceObjectCreateData) {
-        this.id = ServiceObjectId.from(uuidv4());
+    private constructor(data: ServiceObjectCreateData & { id?: string }) {
+        this.id = data.id ? ServiceObjectId.from(data.id) : ServiceObjectId.from(uuidv4());
         this.name = data.name;
         this.search_code = data.search_code;
         this.address = data.address;
         this.coords = data.coords;
         this.phone_number = data.phone_number;
         this.work_hours = data.work_hours;
+    }
+
+    /**
+     * Восстанавливает ServiceObject по существующему id (например, из БД или по ссылке).
+     */
+    static from(data: ServiceObjectCreateData & { id: string }): ServiceObject {
+        return new ServiceObject(data);
     }
 
     getId(): ServiceObjectId {

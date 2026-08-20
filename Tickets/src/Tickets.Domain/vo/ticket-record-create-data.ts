@@ -1,5 +1,6 @@
 import { Email } from "./email";
 import TicketRecordStatus from "./ticket-record-status";
+import { TicketWork } from "../entities/ticket-work";
 
 export class TicketRecordCreateData {
    id: string;
@@ -27,16 +28,11 @@ export class TicketRecordCreateData {
 
    is_service_change_available: boolean;
 
-   service_object: {
-     address: string;
-     name: string;
-     search_code: string;
-     coords: {
-       lat: string;
-       lng: string;
-    };
-     phone_number: string;
-  };
+   service_object_id: string;
+
+   current_work_id?: string;
+
+   works?: TicketWork[];
 
   constructor(data: {
     id: string;
@@ -52,13 +48,9 @@ export class TicketRecordCreateData {
     act_type: string;
     wiki_link: string;
     is_service_change_available: boolean;
-    service_object: {
-      address: string;
-      name: string;
-      search_code: string;
-      coords: { lat: string; lng: string };
-      phone_number: string;
-    };
+    service_object_id: string;
+    current_work_id?: string;
+    works?: TicketWork[];
   }) {
     this.id = data.id;
     this.external_id = data.external_id;
@@ -73,7 +65,9 @@ export class TicketRecordCreateData {
     this.act_type = data.act_type;
     this.wiki_link = data.wiki_link;
     this.is_service_change_available = data.is_service_change_available;
-    this.service_object = data.service_object;
+    this.service_object_id = data.service_object_id;
+    this.current_work_id = data.current_work_id;
+    this.works = data.works;
   }
 
   private static isValid(data: {
@@ -90,13 +84,7 @@ export class TicketRecordCreateData {
     act_type: string;
     wiki_link: string;
     is_service_change_available: boolean;
-    service_object: {
-      address: string;
-      name: string;
-      search_code: string;
-      coords: { lat: string; lng: string };
-      phone_number: string;
-    };
+    service_object_id: string;
   }): boolean {
     if (!data) return false;
 
@@ -140,16 +128,8 @@ export class TicketRecordCreateData {
     // is_service_change_available: boolean
     if (typeof data.is_service_change_available !== 'boolean') return false;
 
-    // service_object: проверка вложенных полей
-    if (!data.service_object || typeof data.service_object !== 'object') return false;
-    const so = data.service_object;
-    if (!so.address || typeof so.address !== 'string') return false;
-    if (!so.name || typeof so.name !== 'string') return false;
-    if (!so.search_code || typeof so.search_code !== 'string') return false;
-    if (!so.coords || typeof so.coords !== 'object') return false;
-    if (!so.coords.lat || typeof so.coords.lat !== 'string') return false;
-    if (!so.coords.lng || typeof so.coords.lng !== 'string') return false;
-    if (!so.phone_number || typeof so.phone_number !== 'string') return false;
+    // service_object_id: непустая строка
+    if (!data.service_object_id || typeof data.service_object_id !== 'string') return false;
 
     return true;
   }

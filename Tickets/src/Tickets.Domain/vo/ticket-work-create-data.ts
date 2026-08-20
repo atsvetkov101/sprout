@@ -25,6 +25,7 @@ export class TicketWorkCreateData {
     act_type?: string;
     deadline?: string; // datetime as ISO string
     wiki_link?: string;
+    ticketRecordId?: string;
 
     constructor(data: {
         id: string;
@@ -38,6 +39,7 @@ export class TicketWorkCreateData {
         act_type?: string;
         deadline?: string;
         wiki_link?: string;
+        ticketRecordId?: string;
     }) {
         this.id = data.id;
         this.status = data.status;
@@ -50,5 +52,6 @@ export class TicketWorkCreateData {
         this.act_type = data.act_type;
         this.deadline = data.deadline;
         this.wiki_link = data.wiki_link;
+        this.ticketRecordId = data.ticketRecordId;
     }
 }

@@ -42,7 +42,7 @@ yarn-error.log*
 coverage/
 
 # Build artifacts
-/dist
+dist/
 build/
 out/
 *.tgz

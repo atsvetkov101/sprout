@@ -225,12 +225,31 @@ closeByEngineer(result):
 
 ## 7. Известные дефекты в коде
 
-1. **Dangling-ссылка `TicketServiceChangedEvent`** в `entities/ticket-record.ts` (в `setService`) — класса/события **не существует** в `domain-events/`. Проектное решение: определить полноценное доменное событие смены сервиса (`TicketServiceExtСhangedEvent` / `TicketServiceByEngineerСhangedEvent` по Матрице), наследуемое от `DomainEvent`. Сам файл `ticket-record.ts` в рамках этого этапа не изменяется.
+> Статус дефектов обновлён `2026-08-20` после выполнения шагов 1–4 плана
+> [`plans/2026-08-20T10-08-15-tickets-next-step.md`](../plans/2026-08-20T10-08-15-tickets-next-step.md).
+
+1. **Dangling-ссылка `TicketServiceChangedEvent`** — ✅ **устранена**: создан класс
+   `TicketServiceChangedEvent extends DomainEvent` в `domain-events/ticket-service-changed-event.ts`, добавлен импорт
+   в `TicketRecord.setService()` (см. [`ticket-service-changed-event.ts`](../Tickets/src/Tickets.Domain/domain-events/ticket-service-changed-event.ts:10),
+   [`ticket-record.ts`](../Tickets/src/Tickets.Domain/entities/ticket-record.ts:200)). Проектное направление на отдельные
+   `TicketServiceExtСhangedEvent` / `TicketServiceByEngineerСhangedEvent` по Матрице сохранено как последующая доработка.
 2. **`TicketRecord.setService` бросает ошибку при одинаковом сервисе** — это согласовано с инвариантом «смена только на отличающийся сервис» (сообщение на русском). Логика остаётся на уровне инварианта агрегата.
-3. **Две параллельные сущности** (`TicketRecord` и `TicketWork`) **без явного корня и без моделирования связи 1 : n** — в коде нет перекрёстных ссылок (`currentWorkId` / `ticketRecordId`) и нет выделения единственной активной работы. Это целевое состояние из README, требующее доработки.
-4. **Нет моделирования истории работ, переоткрытия и двустороннего применения изменений по событиям** — проектное решение вводит 1 : n согласно `work/02-tactical/README.md`.
-5. **`service_object` хранится как встроенные данные** (`vo/ticket-record-create-data.ts`), а не как ссылка `ServiceObjectId` — целевое состояние (внешняя ссылка на контекст «Координаты») требует рефакторинга.
-6. **«Чек-лист» не смоделирован** в агрегатах (есть только `act_id`/`act_type` в `TicketWork`) — согласно Единому языку результатом Работы является заполненный чек-лист; требуется ввод соответствующего поля/коллекции.
+3. **Моделирование связи 1 : n** — ✅ **устранено**: `TicketRecord` держит коллекцию `works: TicketWork[]`, метод `addWork()`
+   и понятие активной работы `currentWork()` с инвариантом «одна активная работа»; добавлены перекрёстные ссылки по ID
+   `current_work_id` (в `TicketRecord`) и `ticket_record_id` (в `TicketWork`)
+   (см. [`ticket-record.ts`](../Tickets/src/Tickets.Domain/entities/ticket-record.ts:24),
+   [`ticket-record.ts`](../Tickets/src/Tickets.Domain/entities/ticket-record.ts:153),
+   [`ticket-work.ts`](../Tickets/src/Tickets.Domain/entities/ticket-work.ts:23)).
+4. **История работ, переоткрытие и двустороннее применение изменений по событиям** — 🟡 **частично**: коллекция работ и понятие
+   активной работы реализованы; команда переоткрытия (создание нового экземпляра Работы) и двустороннее применение изменений
+   между агрегатами по событиям — целевое состояние (направления последующей доработки).
+5. **`service_object` как встроенные данные** — ✅ **устранено**: `TicketRecordCreateData.service_object` заменён на ссылку
+   `service_object_id`; `TicketRecord` хранит/отдаёт `ServiceObjectId`; добавлена публичная фабрика `ServiceObject.from()`
+   для восстановления по ID; `fromDb()` синхронизирован
+   (см. [`ticket-record-create-data.ts`](../Tickets/src/Tickets.Domain/vo/ticket-record-create-data.ts:31),
+   [`service-object.ts`](../Tickets/src/Tickets.Domain/entities/service-object.ts:31),
+   [`ticket-record.ts`](../Tickets/src/Tickets.Domain/entities/ticket-record.ts:61)).
+6. **«Чек-лист» не смоделирован** в агрегатах (есть только `act_id`/`act_type` в `TicketWork`) — согласно Единому языку результатом Работы является заполненный чек-лист; требуется ввод соответствующего поля/коллекции. Сохраняется как открытое направление.
 
 ## 8. Итоговое согласование с README и кодом
 

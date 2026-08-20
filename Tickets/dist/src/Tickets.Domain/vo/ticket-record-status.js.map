@@ -1,1 +1,0 @@
-{"version":3,"file":"ticket-record-status.js","sourceRoot":"","sources":["../../../../src/Tickets.Domain/vo/ticket-record-status.ts"],"names":[],"mappings":";;AAAA,IAAK,kBAOJ;AAPD,WAAK,kBAAkB;IACrB,iCAAW,CAAA;IACX,2CAAqB,CAAA;IACrB,gDAA0B,CAAA;IAC1B,mCAAa,CAAA;IACb,2CAAqB,CAAA;IACrB,uCAAiB,CAAA;AACnB,CAAC,EAPI,kBAAkB,KAAlB,kBAAkB,QAOtB;AAED,kBAAe,kBAAkB,CAAC"}
