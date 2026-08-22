@@ -82,7 +82,7 @@ TicketRecord (1)  ◄── 1 : n ──►  TicketWork (n)
 
 **Агрегат «Работа над заявкой» (`TicketWork`)**, `entities/ticket-work.ts`:
 - Корень — `TicketWork`.
-- Состояние: `id: TicketWorkId`, `status: TicketWorkStatus`, `plannedOrder`, `start_date`, `service`, `user_events: UserEvent[]`, `coords_list: Coords[]`, `act_id?`, `act_type?`, `deadline?`, `wiki_link?`.
+- Состояние: `id: TicketWorkId`, `status: TicketWorkStatus`, `plannedOrder`, `start_date`, `service`, `user_events: UserEvent[]`, `coords_list: Coords[]`, `act_id?`, `act_type?`, `deadline?`, `wiki_link?`, `checklist_id?` (ссылка на сущность `CheckList`).
 - Внутренние коллекции Value Objects: `coords_list: Coords[]`, `user_events: UserEvent[]` (`UserEvent` — из `vo/ticket-work-create-data.ts`).
 - События собираются в корне: `addDomainEvent` / `getDomainEvents` / `clearDomainEvents`.
 - **Целевая ссылка** на Заявку по идентификатору (`ticketRecordId: TicketRecordId`) — из README; в коде **отсутствует** (раздел 8).
@@ -249,7 +249,11 @@ closeByEngineer(result):
    (см. [`ticket-record-create-data.ts`](../Tickets/src/Tickets.Domain/vo/ticket-record-create-data.ts:31),
    [`service-object.ts`](../Tickets/src/Tickets.Domain/entities/service-object.ts:31),
    [`ticket-record.ts`](../Tickets/src/Tickets.Domain/entities/ticket-record.ts:61)).
-6. **«Чек-лист» не смоделирован** в агрегатах (есть только `act_id`/`act_type` в `TicketWork`) — согласно Единому языку результатом Работы является заполненный чек-лист; требуется ввод соответствующего поля/коллекции. Сохраняется как открытое направление.
+6. **«Чек-лист»** — ✅ **устранено**: добавлена сущность `CheckList` (`entities/check-list.ts`: элементы `items: ChecklistItem[]`, методы
+   `addItem`/`completeItem`/`isCompleted`, фабрики `create`/`from`) и ссылка по ID `checklist_id` из `TicketWork`
+   (`entities/ticket-work.ts:24`, геттер/сеттер `getChecklistId`/`setChecklistId`, поле `checklistId` в `TicketWorkCreateData`).
+   Добавлены VО `ChecklistItem`/`ChecklistCreateData` и идентификатор `ChecklistId`. Покрыто юнит-тестами
+   (`entities/check-list.spec.ts`, расширен `entities/ticket-work.spec.ts`).
 
 ## 8. Итоговое согласование с README и кодом
 

@@ -6,7 +6,7 @@ import TicketWorkStatus from "../vo/ticket-work-status";
 import { Coords } from "../vo/coords";
 import { DomainEvent } from "../domain-events/domain-event";
 import { TicketWorkStatusChangedEvent } from "../domain-events/ticket-work-status-changed-event";
-import { TicketWorkId, TicketRecordId } from './identifiers';
+import { TicketWorkId, TicketRecordId, ChecklistId } from './identifiers';
 
 export class TicketWork {
     private id!: TicketWorkId;
@@ -21,6 +21,7 @@ export class TicketWork {
     private deadline?: Date;
     private wiki_link?: string;
     private ticket_record_id?: TicketRecordId;
+    private checklist_id?: ChecklistId;
     private events: DomainEvent[] = [];
 
     constructor(data: TicketWorkCreateData) {
@@ -49,6 +50,7 @@ export class TicketWork {
         }
         this.wiki_link = data.wiki_link;
         this.ticket_record_id = data.ticketRecordId ? TicketRecordId.from(data.ticketRecordId) : undefined;
+        this.checklist_id = data.checklistId ? ChecklistId.from(data.checklistId) : undefined;
     }
 
     public static fromData(data: TicketWorkCreateData): TicketWork {
@@ -65,6 +67,14 @@ export class TicketWork {
 
     setTicketRecordId(id: TicketRecordId): void {
         this.ticket_record_id = id;
+    }
+
+    getChecklistId(): ChecklistId | undefined {
+        return this.checklist_id;
+    }
+
+    setChecklistId(id: ChecklistId): void {
+        this.checklist_id = id;
     }
 
     getStatus(): TicketWorkStatus {
