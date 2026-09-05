@@ -7,6 +7,7 @@ import { Coords } from "../vo/coords";
 import { DomainEvent } from "../domain-events/domain-event";
 import { TicketWorkStatusChangedEvent } from "../domain-events/ticket-work-status-changed-event";
 import { TicketWorkId, TicketRecordId, ChecklistId } from './identifiers';
+import { CheckList } from './check-list';
 
 export class TicketWork {
     public static readonly kind: string = 'TicketWork';
@@ -24,6 +25,10 @@ export class TicketWork {
     private wiki_link?: string;
     private ticket_record_id?: TicketRecordId;
     private checklist_id?: ChecklistId;
+    // Объект-значение чек-листа, прикреплённого к работе над заявкой.
+    // Отличается от checklist_id (ссылки на персистентный чек-лист):
+    // здесь хранится сам заполненный чек-лист, используемый при смене статуса.
+    private checklist?: CheckList;
     private events: DomainEvent[] = [];
 
     constructor(data: TicketWorkCreateData) {
@@ -52,7 +57,6 @@ export class TicketWork {
         }
         this.wiki_link = data.wiki_link;
         this.ticket_record_id = data.ticketRecordId ? TicketRecordId.from(data.ticketRecordId) : undefined;
-        this.checklist_id = data.checklistId ? ChecklistId.from(data.checklistId) : undefined;
     }
 
     public static fromData(data: TicketWorkCreateData): TicketWork {
@@ -73,6 +77,10 @@ export class TicketWork {
 
     getChecklistId(): ChecklistId | undefined {
         return this.checklist_id;
+    }
+
+    getChecklist(): CheckList | undefined {
+        return this.checklist;
     }
 
     setChecklistId(id: ChecklistId): void {
@@ -146,9 +154,24 @@ export class TicketWork {
         this.service = newService;
     }
 
-    applyChangeStatusChanges(newData: TicketWorkUpdateData) {
+    /**
+     * Переводит работу над заявкой в новый статус.
+     * Если во входных данных передан заполненный чек-лист, он сохраняется в работе.
+     * При переводе в статус «Выполнена» (Done) требуется полностью заполненный чек-лист.
+     */
+    changeStatus(newData: TicketWorkUpdateData) {
         if (!this.statusChangeAllowed(newData.status)) {
             throw new Error('Такое изменение статуса не поддерживается');
+        }
+
+        // если передан чек-лист, сохраняем его значение в работе
+        if (newData.checklist) {
+            this.checklist = newData.checklist;
+        }
+
+        // перевод в статус «Выполнена» требует полностью заполненного чек-листа
+        if (newData.status === TicketWorkStatus.Done && this.checklist && !this.checklist.isCompleted()) {
+            throw new Error('Чек-лист не заполнен полностью');
         }
 
         this.status = newData.status;
