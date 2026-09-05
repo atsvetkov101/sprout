@@ -1,33 +1,31 @@
 # AGENTS.md
 
-This file provides guidance to agents when working with code in this repository.
+Этот файл содержит рекомендации для агентов при работе с кодом в этом репозитории.
 
-## Project rules (mandatory, from `.roo/rules/`)
-- **Write in Russian.** Respond concisely and to the point.
-- **Plan files** must be saved to `plans/` with a timestamp prefix `YYYY-MM-DDTHH-MM-SS-` (Europe/Moscow, UTC+3), e.g. `plans/2026-08-03T22-53-44-design.md`. Reference/comparison materials go in `work/<stage>/`, NOT in `plans/`.
-- **Work directory**: all stage work lives under `work/` (`01-strategic` … `06-extra`). Task spec is `work/task.md`.
-- **Never edit** files in `.codeassistantignore` (`.env`, `node_modules`, docker data, etc.).
-- Communicate in Russian in UI/doc content too (README tables, domain comments are Russian).
+## Правила проекта (обязательные, из `.roo/rules/`)
+- **Пишите по-русски** — и в ответах, и в содержимом UI/документации (таблицы в README, комментарии в домене). Отвечайте кратко и по существу.
+- **Файлы планов** должны сохраняться в `plans/` с префиксом-меткой времени `YYYY-MM-DDTHH-MM-SS-` (Europe/Moscow, UTC+3), например `plans/2026-08-03T22-53-44-design.md`. Справочные/сравнительные материалы размещаются в `work/<stage>/`, а НЕ в `plans/`.
+- **Рабочий каталог**: все материалы этапов лежат в `work/` (`01-strategic` … `06-extra`). Техническое задание — `work/task.md`.
+- **Никогда не редактируйте** файлы из `.codeassistantignore` (`.env`, `node_modules`, данные docker и т. п.).
 
-## Repo layout
-- **Monorepo of bounded contexts**, each self-contained with its own `package.json`/`jest.config.js`/`yarn.lock`: `Tickets/`, `Coords/`, `Equipment/`, `Notification/`, `Users/`.
-- Each context follows **DDD hexagonal layout**: `<Context>.Application`, `.Domain`, `.Host`, `.Infrastructure`, `.Integration` directories under `src/`.
-- **Root** `package.json` only orchestrates jest projects; all real scripts live in context `package.json` (e.g. `Tickets/package.json`).
-- Main implemented context is `Tickets/` (NestJS + CQRS + Sequelize + PostgreSQL + RabbitMQ via `amqplib`).
+## Структура репозитория
+- **Монорепозиторий ограниченных контекстов**: `Tickets/`, `Coords/`, `Equipment/`, `Notification/`, `Users/`.
+- Полностью реализован и самодостаточен только **`Tickets/`** — он имеет собственные `package.json`/`jest.config.js`/`yarn.lock`. Остальные контексты (`Coords/`, `Equipment/`, `Notification/`, `Users/`) пока являются пустыми заготовками: внутри `src/` только каталоги `<Context>.*` без кода и конфигурации.
+- Каждый контекст следует **DDD-гексагональной структуре**: каталоги `<Context>.Application`, `.Domain`, `.Host`, `.Infrastructure`, `.Integration` внутри `src/`.
+- **Корневой** `package.json` оркестрирует jest-проекты (`test`, `test:watch`, `test:cov`); реальные скрипты приложения живут в `package.json` контекста (`Tickets/package.json`).
+- Контекст `Tickets/`: NestJS + CQRS + Sequelize + PostgreSQL + RabbitMQ через `amqplib`.
 
-## Commands
-- **Root tests**: `yarn test` (runs jest projects from root `jest.config.js`).
-- **Tickets context** (run from `Tickets/`): `yarn test`, `yarn test:watch`, `yarn test:cov`, `yarn build` (rimraf + nest build), `yarn lint`, `yarn format`.
-- **Path alias**: `@/*` → `<rootDir>/src/*` (configured in both `Tickets/jest.config.js` `moduleNameMapper` and `Tickets/tsconfig.json` `paths`).
+## Команды
+- **Тесты из корня**: `yarn test` (запускает jest-проекты из корневого `jest.config.js`; сейчас там подключён только проект `Tickets/`).
+- **Контекст Tickets** (запускать из `Tickets/`): `yarn test`, `yarn test:watch`, `yarn test:cov`, `yarn build` (rimraf + nest build), `yarn lint`, `yarn format`.
+- **Алиас путей**: `@/*` → `<rootDir>/src/*` (настроен и в `Tickets/jest.config.js` (`moduleNameMapper`), и в `Tickets/tsconfig.json` (`paths`)).
 
-## Code conventions (discovered, non-obvious)
-- **Test files**: `*.spec.ts`, colocated next to the source file (e.g. `vo/email.spec.ts`, `vo/work-hour.spec.ts`). `testMatch` is only `**/*.spec.ts`.
-- **Identifiers**: brand types via `Brand<K,T>` with a `from()` factory + `isValid()` type guard (see `Tickets.Domain/entities/identifiers.ts`). Always build IDs through `XxxId.from(...)`.
-- **DB/DTO fields use `snake_case`** (e.g. `external_id`, `assignee_id`, `created_time`, `wiki_link`, `is_service_change_available`) even though TS/JS conventions prefer camelCase.
-- **Domain error messages are in Russian** (`throw new Error('Смена сервиса не доступна')`).
-- **Domain events**: aggregates collect events via `addDomainEvent(event)` / `getDomainEvents()` / `clearDomainEvents()`. New events must implement `IDomainEvent` and extend `DomainEvent`.
+## Соглашения о коде (выявленные, неочевидные)
+- **Тестовые файлы**: `*.spec.ts`, располагаются рядом с исходным файлом (например, `vo/email.spec.ts`, `vo/work-hour.spec.ts`). В `testMatch` только `**/*.spec.ts`.
+- **Идентификаторы**: brand-типы через `Brand<K,T>` с фабрикой `from()` + type-guard `isValid()` (см. `Tickets.Domain/entities/identifiers.ts`). Всегда создавайте ID через `XxxId.from(...)`.
+- **Поля БД/DTO используют `snake_case`** (например, `external_id`, `assignee_id`, `created_time`, `wiki_link`, `is_service_change_available`), даже если соглашения TS/JS предпочитают camelCase.
+- **Сообщения об ошибках домена на русском** (`throw new Error('Смена сервиса не доступна')`).
+- **События домена**: агрегаты собирают события через `addDomainEvent(event)` / `getDomainEvents()` / `clearDomainEvents()`. Новые события должны реализовывать `IDomainEvent` и наследовать `DomainEvent`.
 
-## Gotchas
-- Aggregate entities live in `Tickets/src/Tickets.Domain/entities/`, **not** in a root `src/entities` location; don't create a parallel structure.
-- `Tickets/src/Tickets.Domain/entities/ticket-record.ts` references `TicketServiceChangedEvent` (line ~162) which has **no matching import/definition** in the domain — a pre-existing dangling reference; resolve it if you touch that method.
-- Work/plan documentation is authored in Russian; match that language in new docs.
+## Подводные камни
+- Сущности агрегатов живут только в `Tickets/src/Tickets.Domain/entities/`.
