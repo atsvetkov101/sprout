@@ -19,7 +19,8 @@
     "noFallthroughCasesInSwitch": true,
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "types": ["jest", "node"]
   },
   "include": ["src/**/*", "../Tickets/src/Tickets.Domain/domain-events/ticket-work-status-changed-event.ts"],
   "exclude": ["node_modules", "dist"]

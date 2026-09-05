@@ -6,10 +6,13 @@ import TicketWorkStatus from "../vo/ticket-work-status";
 import { DomainEvent } from "../domain-events/domain-event";
 import { TicketRecordStatusInternallyChangedEvent } from "../domain-events/ticket-record-status-internally-changed-event";
 import { TicketServiceChangedEvent } from "../domain-events/ticket-service-changed-event";
+import { TicketExternallyReopenedEvent } from "../domain-events/ticket-externally-reopened-event";
 import { TicketRecordId, TicketWorkId, ServiceObjectId } from './identifiers';
 import { TicketWork } from './ticket-work';
 
 export class TicketRecord {
+    public static readonly kind: string = 'TicketRecord';
+
     private id!: TicketRecordId;
     private external_id!: string;
     private assignee_id!: number;
@@ -185,6 +188,37 @@ export class TicketRecord {
     // Выполняется ли закрытие тикета при переводе в новый статус
     isClosing(newStatus: TicketRecordStatus): boolean {
         return (newStatus === TicketRecordStatus.Closed || newStatus === TicketRecordStatus.Canceled);
+    }
+
+    // Находится ли заявка в финальном статусе (из него допускается переоткрытие извне)
+    isFinal(): boolean {
+        return this.status === TicketRecordStatus.Done
+            || this.status === TicketRecordStatus.Canceled
+            || this.status === TicketRecordStatus.Closed;
+    }
+
+    /**
+     * Переоткрытие заявки извне (ReopeningTicketExternally).
+     * Допустимо только из финального статуса. Целевой статус должен быть активным,
+     * отличным от текущего. Инвариант «единственная активная работа» обеспечивается
+     * методом addWork() перед вызовом reopen(). Порождает TicketExternallyReopenedEvent.
+     */
+    reopen(targetStatus: TicketRecordStatus): void {
+        if (!this.isFinal()) {
+            throw new Error('Переоткрыть заявку можно только из финального статуса');
+        }
+        if (targetStatus === this.status || this.isClosing(targetStatus)) {
+            throw new Error('Некорректный целевой статус для переоткрытия заявки');
+        }
+        this.status = targetStatus;
+        this.addDomainEvent(
+            new TicketExternallyReopenedEvent({
+                ticketId: this.id,
+                newWorkId: this.getCurrentWorkId()?.toString(),
+                eventId: uuidv4(),
+                occurredAt: new Date(),
+            })
+        );
     }
 
     /**

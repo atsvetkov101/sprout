@@ -9,6 +9,8 @@ import { ChecklistId } from "./identifiers";
  * Работа над заявкой (TicketWork) связана с этой сущностью по идентификатору.
  */
 export class CheckList {
+    public static readonly kind: string = 'CheckList';
+
     private readonly id: ChecklistId;
     private items: ChecklistItem[];
 

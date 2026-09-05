@@ -9,6 +9,8 @@ import { TicketWorkStatusChangedEvent } from "../domain-events/ticket-work-statu
 import { TicketWorkId, TicketRecordId, ChecklistId } from './identifiers';
 
 export class TicketWork {
+    public static readonly kind: string = 'TicketWork';
+
     private id!: TicketWorkId;
     private status!: TicketWorkStatus;
     private plannedOrder!: number;

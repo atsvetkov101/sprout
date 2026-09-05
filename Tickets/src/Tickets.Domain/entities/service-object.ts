@@ -7,6 +7,8 @@ import { WorkHours } from "../vo/work-hours";
 import { ServiceObjectId } from "./identifiers";
 
 export class ServiceObject {
+    public static readonly kind: string = 'ServiceObject';
+
     private id: ServiceObjectId;
     private name: string;
     private search_code: string;
